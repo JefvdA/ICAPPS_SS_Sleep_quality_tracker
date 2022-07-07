@@ -20,7 +20,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
-interface SleepDatabaseDao {
+interface SleepNightDao {
     @Query("SELECT * from tblSleepNights ORDER BY id DESC")
     fun selectAll(): LiveData<List<SleepNight>>
 

@@ -25,17 +25,17 @@ interface SleepNightDao {
     fun selectAll(): LiveData<List<SleepNight>>
 
     @Query("SELECT * FROM tblSleepNights WHERE id=:id")
-    fun selectById(id: Int): SleepNight?
+    suspend fun selectById(id: Int): SleepNight?
 
     @Query("SELECT * FROM tblSleepNights ORDER BY id DESC LIMIT 1")
-    fun selectLatest(): SleepNight?
+    suspend fun selectLatest(): SleepNight?
 
     @Insert
-    fun insert(sleepNight: SleepNight)
+    suspend fun insert(sleepNight: SleepNight)
 
     @Update
-    fun update(sleepNight: SleepNight)
+    suspend fun update(sleepNight: SleepNight)
 
     @Query("DELETE FROM tblSleepNights")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

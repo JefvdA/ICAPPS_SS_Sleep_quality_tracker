@@ -64,7 +64,7 @@ class SleepTrackerViewModel(
     fun onStartTracking() {
         viewModelScope.launch {
             isTracking.postValue(true)
-            database.insert(SleepNight())
+            insert(SleepNight())
             initializeTonight()
         }
     }
@@ -74,15 +74,19 @@ class SleepTrackerViewModel(
             isTracking.postValue(false)
             val oldTonight = tonight.value ?: return@launch
             oldTonight.endTimeInMillis = System.currentTimeMillis()
-            database.update(oldTonight)
+            update(oldTonight)
         }
     }
 
     fun onClear() {
         viewModelScope.launch {
-            database.deleteAll()
+            clear()
             initializeTonight()
         }
     }
+
+    private suspend fun insert(sleepNight: SleepNight) = database.insert(sleepNight)
+    private suspend fun update(sleepNight: SleepNight) = database.update(sleepNight)
+    private suspend fun clear() = database.deleteAll()
 }
 

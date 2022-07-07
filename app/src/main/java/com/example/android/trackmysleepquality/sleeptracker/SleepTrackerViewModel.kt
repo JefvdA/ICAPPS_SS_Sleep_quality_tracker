@@ -17,8 +17,13 @@
 package com.example.android.trackmysleepquality.sleeptracker
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.example.android.trackmysleepquality.database.SleepNight
 import com.example.android.trackmysleepquality.database.SleepNightDao
+import kotlinx.coroutines.launch
 
 /**
  * ViewModel for SleepTrackerFragment.
@@ -26,5 +31,58 @@ import com.example.android.trackmysleepquality.database.SleepNightDao
 class SleepTrackerViewModel(
     val database: SleepNightDao,
     application: Application) : AndroidViewModel(application) {
+
+    private var tonight = MutableLiveData<SleepNight?>()
+
+    var isTracking = MutableLiveData(false)
+
+    init {
+        initializeTonight()
+    }
+
+    companion object {
+        val TAG = this::class.java.simpleName
+    }
+
+    private fun initializeTonight() {
+        viewModelScope.launch {
+            with(getTonightFromDatabase()) {
+                tonight.postValue(this)
+                isTracking.postValue(this != null)
+            }
+        }
+    }
+
+    private suspend fun getTonightFromDatabase(): SleepNight? {
+        var tonight = database.selectLatest()
+        if(tonight?.startTimeInMillis != tonight?.endTimeInMillis){
+            tonight = null
+        }
+        return tonight
+    }
+
+    fun onStartTracking() {
+        viewModelScope.launch {
+            isTracking.postValue(true)
+            database.insert(SleepNight())
+            initializeTonight()
+        }
+    }
+
+    fun onStopTracking() {
+        viewModelScope.launch {
+            isTracking.postValue(false)
+            val oldTonight = tonight.value ?: return@launch
+            oldTonight.endTimeInMillis = System.currentTimeMillis()
+            database.update(oldTonight)
+        }
+    }
+
+    fun onClear() {
+        viewModelScope.launch {
+            database.deleteAll()
+            initializeTonight()
+        }
+    }
 }
 

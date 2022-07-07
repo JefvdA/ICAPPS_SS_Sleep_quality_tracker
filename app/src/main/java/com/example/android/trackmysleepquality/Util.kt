@@ -81,7 +81,7 @@ fun formatNights(nights: List<SleepNight>, resources: Resources): Spanned {
         nights.forEach {
             append("<br>")
             append(resources.getString(R.string.start_time))
-            append("\t${convertLongToDateString(it.endTimeInMillis)}<br>")
+            append("\t${convertLongToDateString(it.startTimeInMillis)}<br>")
             if (it.endTimeInMillis != it.startTimeInMillis) {
                 append(resources.getString(R.string.end_time))
                 append("\t${convertLongToDateString(it.endTimeInMillis)}<br>")
